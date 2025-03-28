@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --job-name=FIR_JustinBahr
+#SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --time=00:30:00
+#SBATCH --partition=courses
+#SBATCH --output=FIR_output.txt
+
+# Program/command
+make TARGET=fir
+make TARGET=fir_omp
+./fir
+./fir_omp
+make clean
