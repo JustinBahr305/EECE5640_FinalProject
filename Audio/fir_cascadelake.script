@@ -12,6 +12,7 @@ make TARGET=fir
 make TARGET=fir_omp
 make TARGET=fir_avx
 make TARGET=fir_combo
+echo Running on a CPU Node with AVX Support$'\n'
 ./fir
 ./fir_omp
 ./fir_avx

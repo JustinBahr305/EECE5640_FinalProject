@@ -118,7 +118,7 @@ int main()
     float coefficients[ORDER];
 
     // opens the coefficients text file
-    ifstream coFile("Filters/coefficients.txt");
+    ifstream coFile("Filters/PM_lowpass.txt");
 
     // throws an error if the coefficients text file cannot be opened
     if (!coFile)
@@ -173,7 +173,7 @@ int main()
 
         // saves the input and output file paths
         inputPath = "Input_Samples/";
-        outputPath = "Output_Samples/";
+        outputPath = "Output_Samples/OpenMP_Outputs/";
 
         inputPath += filenames[fileIndex] + ".wav";
         outputPath += filenames[fileIndex] + "_out.wav";
@@ -247,8 +247,6 @@ int main()
         // casts read_run_time in nanoseconds
         auto read_run_time = chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count();
 
-        cout << "Time to read in nanoseconds: " << read_run_time << endl;
-
         // starts a FIR clock
         start_time = clock::now();
 
@@ -315,7 +313,10 @@ int main()
         // casts write_run_time in nanoseconds
         auto write_run_time = chrono::duration_cast<chrono::nanoseconds>(end_time - start_time).count();
 
-        cout << "Time to write in nanoseconds: " << write_run_time << endl << endl;
+        // adds the time to read and write WAV files
+        auto read_write_time = read_run_time + write_run_time;
+
+        cout << "Time to read and write in nanoseconds: " << read_write_time << endl << endl;
 
         // free allocated memory
         delete[] inputL;

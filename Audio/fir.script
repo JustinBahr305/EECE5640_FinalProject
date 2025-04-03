@@ -9,6 +9,7 @@
 # Program/command
 make TARGET=fir
 make TARGET=fir_omp
+echo Running on a CPU Node without AVX Support$'\n'
 ./fir
 ./fir_omp
 make clean
