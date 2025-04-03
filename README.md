@@ -1,0 +1,1 @@
+Evaluating the performance of an FIR Filter workload with AVX and OpenMP and the performance of Sobel Filter edge detection using CUDA extensions for an NVIDIA P100 GPU

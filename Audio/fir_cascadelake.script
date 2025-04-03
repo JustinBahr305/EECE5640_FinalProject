@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=FIR_cascadelake_JustinBahr
+#SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --time=00:30:00
+#SBATCH --partition=courses
+#SBATCH --constraint=cascadelake
+#SBATCH --output=FIR_cascadelake_output.txt
+
+# Program/command
+make TARGET=fir
+make TARGET=fir_omp
+make TARGET=fir_avx
+make TARGET=fir_combo
+./fir
+./fir_omp
+./fir_avx
+./fir_combo
+make clean

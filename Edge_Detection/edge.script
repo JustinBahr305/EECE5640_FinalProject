@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH --job-name=SobelEdge_JustinBahr
+#SBATCH --nodes=1
+#SBATCH --exclusive
+#SBATCH --time=00:30:00
+#SBATCH --mem=100G
+#SBATCH --partition=courses-gpu
+#SBATCH --gres=gpu:p100:1
+#SBATCH --gres=gpu:1
+#SBATCH --output=SobelOutput.txt
+
+# Program/command
+module load cuda/12.3.0
+make
+./edge
+make clean
