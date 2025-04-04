@@ -77,7 +77,7 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
     {
         // filters left channel
         #pragma omp for nowait
-        for (int i = signalLength-1; i >= 0; i--)
+        for (int i = 0; i < signalLength; i++)
         {
             float temp = 0.0;
             for (int j = 0; j < min(order,i+1); j++)
@@ -89,7 +89,7 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
 
         // filters right channel
         #pragma omp for nowait
-        for (int i = signalLength-1; i >= 0; i--)
+        for (int i = 0; i < signalLength; i++)
         {
             float temp = 0.0;
             for (int j = 0; j < min(order,i+1); j++)
@@ -143,11 +143,11 @@ int main()
     coFile.close();
 
     // defines the number of files to process
-    const int NUM_FILES = 7;
+    const int NUM_FILES = 6;
 
     // creates a string array to store the input filenames
     string filenames[NUM_FILES] = {"StarWars4", "StarWars6", "StarWars10", "StarWars12",
-        "StarWars13", "StarWars20", "StarWars29"};
+        "StarWars13", "StarWars20"};
 
     // creates string variables for the input and output file paths
     string inputPath;

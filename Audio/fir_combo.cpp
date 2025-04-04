@@ -76,21 +76,33 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
 {
     #pragma omp parallel
     {
-        // filters left channel
+        // deals with early values in the left channel
         #pragma omp for
-        for (int i = signalLength - 1; i >= 0; i--)
+        for (int i = 0; i < order - 1; i++)
+    	{
+    		float tempL = 0;
+        	for (int j = 0; j < i + 1; j++)
+        	{
+            	tempL += coefficients[j] * inputL[i - j];
+        	}
+        	outputL[i] = static_cast<int16_t>(tempL);
+    	}
+
+        // filters remaining left channel
+        #pragma omp for
+        for (int i = 0; i < signalLength; i++)
         {
             __m512 sumL = _mm512_setzero_ps();
 
             int j = 0;
-            // processes in chunks of 8 coefficients
-            for (; j + 15 < std::min(order, i + 1); j += 16)
+            // processes in chunks of 16 coefficients
+            for (; j + 15 < min(order, i + 1); j += 16)
             {
                 // loads coefficients
                 __m512 coeffs = _mm512_loadu_ps(&coefficients[j]);
 
                 // Load 16 int16 values and convert to float
-                __m256i inputVals = _mm256_loadu_si256((__m256i*)&inputL[i - j]);
+                __m256i inputVals = _mm256_loadu_si256((__m256i*)&inputL[i - order + j + 1]);
                 __m512 inputsL = _mm512_cvtepi32_ps(_mm512_cvtepi16_epi32(inputVals));
 
                 sumL = _mm512_fmadd_ps(coeffs, inputsL, sumL); // Multiply-accumulate
@@ -100,7 +112,7 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
             float tempL = _mm512_reduce_add_ps(sumL);
 
             // Remainder loop (if order is not a multiple of 8)
-            for (; j < std::min(order, i + 1); j++)
+            for (; j < min(order, i + 1); j++)
             {
                 tempL += coefficients[j] * inputL[i - j];
             }
@@ -109,21 +121,33 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
             outputL[i] = static_cast<int16_t>(tempL);
         }
 
-        // filters right channel
+        // deals with early values in the right channel
         #pragma omp for
-        for (int i = signalLength - 1; i >= 0; i--)
+        for (int i = 0; i < order - 1; i++)
+    	{
+    		float tempR = 0;
+        	for (int j = 0; j < i + 1; j++)
+        	{
+            	tempR += coefficients[j] * inputR[i - j];
+        	}
+        	outputR[i] = static_cast<int16_t>(tempR);
+    	}
+
+        // filters remaining right channel
+        #pragma omp for
+        for (int i = 0; i < signalLength; i++)
         {
             __m512 sumR = _mm512_setzero_ps();
 
             int j = 0;
-            // processes in chunks of 8 coefficients
-            for (; j + 15 < std::min(order, i + 1); j += 16)
+            // processes in chunks of 16 coefficients
+            for (; j + 15 < min(order, i + 1); j += 16)
             {
                 // loads coefficients
                 __m512 coeffs = _mm512_loadu_ps(&coefficients[j]);
 
                 // Load 16 int16 values and convert to float
-                __m256i inputVals = _mm256_loadu_si256((__m256i*)&inputR[i - j]);
+                __m256i inputVals = _mm256_loadu_si256((__m256i*)&inputR[i - order + j + 1]);
                 __m512 inputsR = _mm512_cvtepi32_ps(_mm512_cvtepi16_epi32(inputVals));
 
                 sumR = _mm512_fmadd_ps(coeffs, inputsR, sumR); // Multiply-accumulate
@@ -133,14 +157,15 @@ void FIR_lowpass(const int16_t inputL[], int16_t outputL[], const int16_t inputR
             float tempR = _mm512_reduce_add_ps(sumR);
 
             // Remainder loop
-            for (; j < std::min(order, i + 1); j++) {
+            for (; j < min(order, i + 1); j++)
+            {
                 tempR += coefficients[j] * inputR[i - j];
             }
 
             // Store output, converting back to int16
             outputR[i] = static_cast<int16_t>(tempR);
         }
-    }
+    } // end parallel section
 }
 
 int main()
@@ -185,11 +210,11 @@ int main()
     coFile.close();
 
     // defines the number of files to process
-    const int NUM_FILES = 7;
+    const int NUM_FILES = 6;
 
     // creates a string array to store the input filenames
     string filenames[NUM_FILES] = {"StarWars4", "StarWars6", "StarWars10", "StarWars12",
-        "StarWars13", "StarWars20", "StarWars29"};
+        "StarWars13", "StarWars20"};
 
     // creates string variables for the input and output file paths
     string inputPath;
