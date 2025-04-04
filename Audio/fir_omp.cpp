@@ -112,13 +112,13 @@ int main()
     auto program_start_time = clock::now();
 
     // defines the FIR filter order
-    const int ORDER = 201;
+    const int ORDER = 192;
 
     // creates a double array to store filter coefficients
     float coefficients[ORDER];
 
     // opens the coefficients text file
-    ifstream coFile("Filters/PM_lowpass.txt");
+    ifstream coFile("Filters/PM_lowpass_filt.txt");
 
     // throws an error if the coefficients text file cannot be opened
     if (!coFile)

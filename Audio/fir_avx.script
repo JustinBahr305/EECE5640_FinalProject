@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=FIR_AVX_JustinBahr
+#SBATCH -N 1
+#SBATCH --exclusive
+#SBATCH --time=00:30:00
+#SBATCH --constraint=cascadelake
+#SBATCH --output=FIR_AVX_output.txt
+
+# Program/command
+make TARGET=fir
+make TARGET=fir_omp
+make TARGET=fir_avx
+make TARGET=fir_combo
+echo Running on a CPU Node with AVX Support$'\n'
+./fir
+./fir_omp
+./fir_avx
+./fir_combo
+make clean
