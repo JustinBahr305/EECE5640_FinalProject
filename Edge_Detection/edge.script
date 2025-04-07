@@ -6,11 +6,15 @@
 #SBATCH --mem=100G
 #SBATCH --partition=courses-gpu
 #SBATCH --gres=gpu:p100:1
-#SBATCH --gres=gpu:1
 #SBATCH --output=SobelOutput.txt
 
 # Program/command
 module load cuda/12.3.0
 make
+echo Running edge ...
 ./edge
+echo Running edge_tiled ...
+./edge_tiled
+echo Running edge_uchar3 ...
+./edge_uchar3
 make clean
