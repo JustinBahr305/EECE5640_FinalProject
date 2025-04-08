@@ -1,7 +1,7 @@
 // sobel.cu
 // Created by Justin Bahr on 3/24/2025.
 // EECE 5640 - High Performance Computing
-// Sobel Filter CUDA Kernel
+// Tiled Sobel Filter CUDA Kernel
 
 #include <cuda_runtime.h>
 #include <cmath>

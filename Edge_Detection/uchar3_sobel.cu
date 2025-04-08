@@ -1,7 +1,7 @@
 // sobel.cu
 // Created by Justin Bahr on 3/24/2025.
 // EECE 5640 - High Performance Computing
-// Sobel Filter CUDA Kernel
+// Sobel Filter CUDA Kernel using uchar3
 
 #include <cuda_runtime.h>
 #include <cmath>
@@ -23,15 +23,16 @@ __constant__ int SOBEL_Y[3][3] = {
 };
 
 // CUDA kernel to convert RGB to Grayscale
-__global__ void rgbToGrayscale(unsigned char *rgb, unsigned char *gray, int width, int height)
+__global__ void rgbToGrayscale_uchar3(uchar3 *rgb, unsigned char *gray, int width, int height)
 {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x < width && y < height)
     {
-        int idx = (y * width + x) * 3; // RGB pixel index
-        gray[y * width + x] = (unsigned char)(0.299f * rgb[idx] + 0.587f * rgb[idx + 1] + 0.114f * rgb[idx + 2]);
+        int idx = y * width + x;
+        uchar3 pixel = rgb[idx];
+        gray[idx] = (unsigned char)(0.299f * pixel.x + 0.587f * pixel.y + 0.114f * pixel.z);
     }
 }
 
@@ -65,10 +66,11 @@ __global__ void sobelFilter(unsigned char *input, unsigned char *output, int wid
 // Function to process the image on GPU
 void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int width, int height)
 {
-    size_t rgbSize = width * height * 3;
+    size_t rgbSize = width * height * sizeof(uchar3);;
     size_t graySize = width * height;
 
-    unsigned char *d_rgb, *d_gray, *d_output;
+    uchar3 *d_rgb;
+    unsigned char *d_gray, *d_output;
 
     // Allocate memory on GPU
     cudaMalloc((void **)&d_rgb, rgbSize);
@@ -76,14 +78,14 @@ void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int
     cudaMalloc((void **)&d_output, graySize);
 
     // Copy RGB data to GPU
-    cudaMemcpy(d_rgb, h_rgbData, rgbSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_rgb, (uchar3 *)h_rgbData, rgbSize, cudaMemcpyHostToDevice);
 
     // Define CUDA grid/block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
     // Convert to grayscale
-    rgbToGrayscale<<<gridSize, blockSize>>>(d_rgb, d_gray, width, height);
+    rgbToGrayscale_uchar3<<<gridSize, blockSize>>>(d_rgb, d_gray, width, height);
     cudaDeviceSynchronize();
 
     // Apply Sobel filter

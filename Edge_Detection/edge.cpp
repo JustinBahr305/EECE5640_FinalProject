@@ -68,10 +68,10 @@ int main()
     auto program_start_time = clock::now();
 
     // defines the number of files to process
-    const int NUM_FILES = 4;
+    const int NUM_FILES = 5;
 
     // creates a string array to store the input filenames
-    string filenames[NUM_FILES] = {"640x426", "1280x853", "1920x1280", "5184x3456"};
+    string filenames[NUM_FILES] = {"640x426", "640x426", "1280x853", "1920x1280", "5184x3456"};
 
     // creates string variables for the input and output file paths
     string inputPath;
@@ -80,6 +80,8 @@ int main()
     int width, height;
     unsigned char *h_rgbData;
     unsigned char *h_outputData;
+
+	cout << endl;
 
     // performs the audio processing workload on all input files
     for (int fileIndex = 0; fileIndex < NUM_FILES; fileIndex++)
@@ -142,7 +144,7 @@ int main()
     // casts program_run_time in nanoseconds
     auto program_run_time = chrono::duration_cast<chrono::nanoseconds>(program_end_time - program_start_time).count();
 
-    cout << "Total program runtime in nanoseconds: " << program_run_time << endl;
+    cout << "Total program runtime in nanoseconds: " << program_run_time << endl << endl << endl;
 
     return 0;
 }
