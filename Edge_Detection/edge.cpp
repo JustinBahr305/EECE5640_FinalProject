@@ -68,10 +68,10 @@ int main()
     auto program_start_time = clock::now();
 
     // defines the number of files to process
-    const int NUM_FILES = 5;
+    const int NUM_FILES = 4;
 
     // creates a string array to store the input filenames
-    string filenames[NUM_FILES] = {"640x426", "640x426", "1280x853", "1920x1280", "5184x3456"};
+    string filenames[NUM_FILES] = {"640x426", "1280x853", "1920x1280", "5184x3456"};
 
     // creates string variables for the input and output file paths
     string inputPath;

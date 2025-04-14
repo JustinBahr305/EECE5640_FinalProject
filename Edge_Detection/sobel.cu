@@ -45,7 +45,7 @@ __global__ void sobelFilter(unsigned char *input, unsigned char *output, int wid
     {
         int Gx = 0, Gy = 0;
 
-        // Apply Sobel operators
+        // applies Sobel operators to pixels
         for (int i = -1; i <= 1; i++)
         {
             for (int j = -1; j <= 1; j++)
@@ -56,13 +56,13 @@ __global__ void sobelFilter(unsigned char *input, unsigned char *output, int wid
             }
         }
 
-        // Compute gradient magnitude
+        // computes the msgnitude of the gradient
         int magnitude = sqrtf(Gx * Gx + Gy * Gy);
         output[y * width + x] = (magnitude > 255) ? 255 : magnitude;
     }
 }
 
-// Function to process the image on GPU
+// function to process the image on a GPU
 void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int width, int height)
 {
     size_t rgbSize = width * height * 3;
@@ -70,30 +70,30 @@ void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int
 
     unsigned char *d_rgb, *d_gray, *d_output;
 
-    // Allocate memory on GPU
+    // allocates memory on the GPU
     cudaMalloc((void **)&d_rgb, rgbSize);
     cudaMalloc((void **)&d_gray, graySize);
     cudaMalloc((void **)&d_output, graySize);
 
-    // Copy RGB data to GPU
+    // copies RGB data to the GPU
     cudaMemcpy(d_rgb, h_rgbData, rgbSize, cudaMemcpyHostToDevice);
 
-    // Define CUDA grid/block sizes
+    // defines the CUDA grid/block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-    // Convert to grayscale
+    // convert to grayscale
     rgbToGrayscale<<<gridSize, blockSize>>>(d_rgb, d_gray, width, height);
     cudaDeviceSynchronize();
 
-    // Apply Sobel filter
+    // applies the Sobel filter
     sobelFilter<<<gridSize, blockSize>>>(d_gray, d_output, width, height);
     cudaDeviceSynchronize();
 
-    // Copy result back to host
+    // copies result back to the CPU host
     cudaMemcpy(h_outputData, d_output, graySize, cudaMemcpyDeviceToHost);
 
-    // Free GPU memory
+    // frees GPU memory
     cudaFree(d_rgb);
     cudaFree(d_gray);
     cudaFree(d_output);

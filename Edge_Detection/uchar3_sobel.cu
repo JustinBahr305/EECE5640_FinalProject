@@ -31,7 +31,7 @@ __global__ void rgbToGrayscale_uchar3(uchar3 *rgb, unsigned char *gray, int widt
     if (x < width && y < height)
     {
         int idx = y * width + x;
-        uchar3 pixel = rgb[idx];
+        uchar3 pixel = rgb[idx]; // loads R, G, and B values into a single pixel data type
         gray[idx] = (unsigned char)(0.299f * pixel.x + 0.587f * pixel.y + 0.114f * pixel.z);
     }
 }
@@ -57,45 +57,45 @@ __global__ void sobelFilter(unsigned char *input, unsigned char *output, int wid
             }
         }
 
-        // Compute gradient magnitude
+        // computes the msgnitude of the gradient
         int magnitude = sqrtf(Gx * Gx + Gy * Gy);
         output[y * width + x] = (magnitude > 255) ? 255 : magnitude;
     }
 }
 
-// Function to process the image on GPU
+// function to process the image on aGPU
 void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int width, int height)
 {
     size_t rgbSize = width * height * sizeof(uchar3);;
     size_t graySize = width * height;
 
-    uchar3 *d_rgb;
+    uchar3 *d_rgb; // creates a pointer for an RGB pixel
     unsigned char *d_gray, *d_output;
 
-    // Allocate memory on GPU
+    // allocates memory on the GPU
     cudaMalloc((void **)&d_rgb, rgbSize);
     cudaMalloc((void **)&d_gray, graySize);
     cudaMalloc((void **)&d_output, graySize);
 
-    // Copy RGB data to GPU
+    // copies RGB data to the GPU
     cudaMemcpy(d_rgb, (uchar3 *)h_rgbData, rgbSize, cudaMemcpyHostToDevice);
 
-    // Define CUDA grid/block sizes
+    // defines the CUDA grid/block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-    // Convert to grayscale
+    // converts to grayscale
     rgbToGrayscale_uchar3<<<gridSize, blockSize>>>(d_rgb, d_gray, width, height);
     cudaDeviceSynchronize();
 
-    // Apply Sobel filter
+    // applies the Sobel filter
     sobelFilter<<<gridSize, blockSize>>>(d_gray, d_output, width, height);
     cudaDeviceSynchronize();
 
-    // Copy result back to host
+    // copies result back to the CPU host
     cudaMemcpy(h_outputData, d_output, graySize, cudaMemcpyDeviceToHost);
 
-    // Free GPU memory
+    // free GPU memory
     cudaFree(d_rgb);
     cudaFree(d_gray);
     cudaFree(d_output);

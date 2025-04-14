@@ -25,8 +25,10 @@ __constant__ int SOBEL_Y[3][3] = {
 // CUDA kernel to convert RGB to Grayscale in tiles
 __global__ void rgbToGrayscaleTiled(unsigned char *rgb, unsigned char *gray, int width, int height)
 {
-    // Define tile size and shared memory
+    // defines the tile and shared memory size
     __shared__ unsigned char tile_rgb[16][16][3]; // RGB channels
+
+    // stores indices
     int tx = threadIdx.x;
     int ty = threadIdx.y;
     int x = blockIdx.x * 16 + tx;
@@ -36,7 +38,7 @@ __global__ void rgbToGrayscaleTiled(unsigned char *rgb, unsigned char *gray, int
 
     if (x < width && y < height)
     {
-        // Load RGB into shared memory
+        // loads RGB data into shared memory
         tile_rgb[ty][tx][0] = rgb[idx];     // R
         tile_rgb[ty][tx][1] = rgb[idx + 1]; // G
         tile_rgb[ty][tx][2] = rgb[idx + 2]; // B
@@ -50,7 +52,7 @@ __global__ void rgbToGrayscaleTiled(unsigned char *rgb, unsigned char *gray, int
         unsigned char g = tile_rgb[ty][tx][1];
         unsigned char b = tile_rgb[ty][tx][2];
 
-        // Compute grayscale intensity
+        // computes the grayscale value
         gray[y * width + x] = (unsigned char)(0.299f * r + 0.587f * g + 0.114f * b);
     }
 }
@@ -58,28 +60,29 @@ __global__ void rgbToGrayscaleTiled(unsigned char *rgb, unsigned char *gray, int
 // CUDA kernel for tiled Sobel edge detection
 __global__ void sobelFilterTiled(unsigned char *input, unsigned char *output, int width, int height)
 {
-    // Define tile size with 1-pixel halo
+    // defines the shared memory tile size with a 1-pixel halo
     __shared__ unsigned char tile[16 + 2][16 + 2];
 
+    // stores indices
     int tx = threadIdx.x;
     int ty = threadIdx.y;
     int x = blockIdx.x * blockDim.x + tx;
     int y = blockIdx.y * blockDim.y + ty;
 
-    // Global image index
+    // stores global index
     int imgIdx = y * width + x;
 
-    // Shared memory coordinates (+1 for halo)
+    // save shared memory coordinates (+1 for halo)
     int sharedX = tx + 1;
     int sharedY = ty + 1;
 
-    // Load center pixels
+    // loads the center pixels
     if (x < width && y < height)
         tile[sharedY][sharedX] = input[imgIdx];
     else
         tile[sharedY][sharedX] = 0;
 
-    // Load halo edges (if thread is at edge of block)
+    // loads the  halo edges if the thread is at edge of it block
     if (tx == 0 && x > 0)
         tile[sharedY][sharedX - 1] = input[y * width + (x - 1)];
     if (tx == blockDim.x - 1 && x < width - 1)
@@ -89,7 +92,7 @@ __global__ void sobelFilterTiled(unsigned char *input, unsigned char *output, in
     if (ty == blockDim.y - 1 && y < height - 1)
         tile[sharedY + 1][sharedX] = input[(y + 1) * width + x];
 
-    // Load halo corners
+    // loads halo corners
     if (tx == 0 && ty == 0 && x > 0 && y > 0)
         tile[sharedY - 1][sharedX - 1] = input[(y - 1) * width + (x - 1)];
     if (tx == 0 && ty == blockDim.y - 1 && x > 0 && y < height - 1)
@@ -101,6 +104,7 @@ __global__ void sobelFilterTiled(unsigned char *input, unsigned char *output, in
 
     __syncthreads();
 
+    // combines tiles
     if (x > 0 && y > 0 && x < width - 1 && y < height - 1) {
         int Gx = 0, Gy = 0;
 
@@ -114,12 +118,13 @@ __global__ void sobelFilterTiled(unsigned char *input, unsigned char *output, in
             }
         }
 
+        // calculates and stores the magnitude of the gradient
         int mag = sqrtf(Gx * Gx + Gy * Gy);
         output[imgIdx] = (mag > 255) ? 255 : mag;
     }
 }
 
-// Function to process the image on GPU
+// function to process the image on a GPU
 void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int width, int height)
 {
     size_t rgbSize = width * height * 3;
@@ -127,30 +132,30 @@ void processImageCUDA(unsigned char *h_rgbData, unsigned char *h_outputData, int
 
     unsigned char *d_rgb, *d_gray, *d_output;
 
-    // Allocate memory on GPU
+    // allocate memory on the GPU
     cudaMalloc((void **)&d_rgb, rgbSize);
     cudaMalloc((void **)&d_gray, graySize);
     cudaMalloc((void **)&d_output, graySize);
 
-    // Copy RGB data to GPU
+    // copy RGB data to the GPU
     cudaMemcpy(d_rgb, h_rgbData, rgbSize, cudaMemcpyHostToDevice);
 
-    // Define CUDA grid/block sizes
+    // define the CUDA grid/block sizes
     dim3 blockSize(16, 16);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
-    // Convert to grayscale
+    // converts to grayscale
     rgbToGrayscaleTiled<<<gridSize, blockSize>>>(d_rgb, d_gray, width, height);
     cudaDeviceSynchronize();
 
-    // Apply Sobel filter
+    // applies the Sobel filter
     sobelFilterTiled<<<gridSize, blockSize>>>(d_gray, d_output, width, height);
     cudaDeviceSynchronize();
 
-    // Copy result back to host
+    // copies result back to the CPU host
     cudaMemcpy(h_outputData, d_output, graySize, cudaMemcpyDeviceToHost);
 
-    // Free GPU memory
+    // free GPU memory
     cudaFree(d_rgb);
     cudaFree(d_gray);
     cudaFree(d_output);

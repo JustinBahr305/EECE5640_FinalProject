@@ -1,0 +1,125 @@
+g++ -o fir fir.cpp
+g++ -fopenmp -o fir_omp fir_omp.cpp
+g++ -mavx512f -o fir_avx fir_avx.cpp
+g++ -fopenmp -mavx512f -o fir_combo fir_combo.cpp
+Running on a CPU Node with AVX Support
+
+
+Running fir ...
+
+Filtering file: StarWars4
+Time to filter in nanoseconds: 32253883737
+Time to read and write in nanoseconds: 283338523
+
+Filtering file: StarWars6
+Time to filter in nanoseconds: 22339442940
+Time to read and write in nanoseconds: 199849219
+
+Filtering file: StarWars10
+Time to filter in nanoseconds: 15296772234
+Time to read and write in nanoseconds: 143804761
+
+Filtering file: StarWars12
+Time to filter in nanoseconds: 23861684138
+Time to read and write in nanoseconds: 205166615
+
+Filtering file: StarWars13
+Time to filter in nanoseconds: 21256609848
+Time to read and write in nanoseconds: 210020988
+
+Filtering file: StarWars20
+Time to filter in nanoseconds: 17548445935
+Time to read and write in nanoseconds: 268061344
+
+Total program runtime in nanoseconds: 133874996888
+
+
+
+Running fir_omp ...
+
+Filtering file: StarWars4
+Time to filter in nanoseconds: 697930450
+Time to read and write in nanoseconds: 154510507
+
+Filtering file: StarWars6
+Time to filter in nanoseconds: 561413615
+Time to read and write in nanoseconds: 127098337
+
+Filtering file: StarWars10
+Time to filter in nanoseconds: 329506790
+Time to read and write in nanoseconds: 79250770
+
+Filtering file: StarWars12
+Time to filter in nanoseconds: 507596912
+Time to read and write in nanoseconds: 120281663
+
+Filtering file: StarWars13
+Time to filter in nanoseconds: 452667561
+Time to read and write in nanoseconds: 105090874
+
+Filtering file: StarWars20
+Time to filter in nanoseconds: 374524850
+Time to read and write in nanoseconds: 91344049
+
+Total program runtime in nanoseconds: 3608250078
+
+
+
+Running fir_avx ...
+
+Filtering file: StarWars4
+Time to filter in nanoseconds: 5064056280
+Time to read and write in nanoseconds: 284159967
+
+Filtering file: StarWars6
+Time to filter in nanoseconds: 3498665136
+Time to read and write in nanoseconds: 196121795
+
+Filtering file: StarWars10
+Time to filter in nanoseconds: 2397228954
+Time to read and write in nanoseconds: 149639629
+
+Filtering file: StarWars12
+Time to filter in nanoseconds: 3736997147
+Time to read and write in nanoseconds: 254335387
+
+Filtering file: StarWars13
+Time to filter in nanoseconds: 3329075518
+Time to read and write in nanoseconds: 195882986
+
+Filtering file: StarWars20
+Time to filter in nanoseconds: 2748193781
+Time to read and write in nanoseconds: 155451407
+
+Total program runtime in nanoseconds: 22016329361
+
+
+
+Running fir_combo ...
+
+Filtering file: StarWars4
+Time to filter in nanoseconds: 130254329
+Time to read and write in nanoseconds: 157997514
+
+Filtering file: StarWars6
+Time to filter in nanoseconds: 90648226
+Time to read and write in nanoseconds: 101388389
+
+Filtering file: StarWars10
+Time to filter in nanoseconds: 62425422
+Time to read and write in nanoseconds: 79305930
+
+Filtering file: StarWars12
+Time to filter in nanoseconds: 97088743
+Time to read and write in nanoseconds: 115107100
+
+Filtering file: StarWars13
+Time to filter in nanoseconds: 86343036
+Time to read and write in nanoseconds: 109359783
+
+Filtering file: StarWars20
+Time to filter in nanoseconds: 70767679
+Time to read and write in nanoseconds: 100869505
+
+Total program runtime in nanoseconds: 1209145067
+rm -f fir  fir_omp fir_avx fir_combo

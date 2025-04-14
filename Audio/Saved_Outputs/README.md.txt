@@ -1,0 +1,1 @@
+This is the destination folder for the FIR Filter program output files.

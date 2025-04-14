@@ -1,0 +1,64 @@
+nvcc -o edge edge.cpp sobel.cu
+nvcc -o edge_tiled edge.cpp tiled_sobel.cu
+nvcc -o edge_uchar3 edge.cpp uchar3_sobel.cu
+Running edge ...
+
+Processing image size: 640x426
+Time to process in nanoseconds: 251550708
+
+Processing image size: 640x426
+Time to process in nanoseconds: 26208219
+
+Processing image size: 1280x853
+Time to process in nanoseconds: 21139467
+
+Processing image size: 1920x1280
+Time to process in nanoseconds: 25255489
+
+Processing image size: 5184x3456
+Time to process in nanoseconds: 95353140
+
+Total program runtime in nanoseconds: 422019645
+
+
+Running edge_tiled ...
+
+Processing image size: 640x426
+Time to process in nanoseconds: 227753258
+
+Processing image size: 640x426
+Time to process in nanoseconds: 10286444
+
+Processing image size: 1280x853
+Time to process in nanoseconds: 17723664
+
+Processing image size: 1920x1280
+Time to process in nanoseconds: 44621700
+
+Processing image size: 5184x3456
+Time to process in nanoseconds: 87241913
+
+Total program runtime in nanoseconds: 390232213
+
+
+Running edge_uchar3 ...
+
+Processing image size: 640x426
+Time to process in nanoseconds: 223679713
+
+Processing image size: 640x426
+Time to process in nanoseconds: 6997973
+
+Processing image size: 1280x853
+Time to process in nanoseconds: 15747521
+
+Processing image size: 1920x1280
+Time to process in nanoseconds: 27123777
+
+Processing image size: 5184x3456
+Time to process in nanoseconds: 87736155
+
+Total program runtime in nanoseconds: 365430115
+
+
+rm edge edge_tiled edge_uchar3

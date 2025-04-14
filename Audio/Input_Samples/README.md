@@ -6,6 +6,5 @@ This folder contains the following files:
 4. StarWars12.wav
 6. StarWars13.wav
 7. StarWars20.wav
-8. StarWars29.wav
 
 These are the unfiltered audio samples which comprise the dataset for the FIR program.
