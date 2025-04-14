@@ -8,8 +8,10 @@ This folder contains the following files:
 7. edge.script
 
 This folder contains the following directories
-1. Input_Samples
-2. Output_Samples
+1. Input_Samples - Input PPM Files
+2. Output_Samples - Output PGM Files
+3. Saved_Outputs - Saved Output WAV Files
+4. Console_Output - Runtime Console Output Example
 
 Run the command "make" to generate the following executables:
 1. edge

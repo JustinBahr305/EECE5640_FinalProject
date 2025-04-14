@@ -11,9 +11,12 @@ This folder contains the following files:
 10. PM_lowpass.fda
 
 This folder contains the following directories
-1. Filters
-2. Input_Samples
-3. Output_Samples
+1. Filters - FIR Filter Coefficients
+2. Input_Samples - Input WAV Files
+3. Output_Samples - Destination for Output WAV Files
+4. Saved_Outputs - Saved Output WAV Files
+5. Console_Output - Runtime Console Output Example
+6. Supporting_Files - Files Written in Early Development  
 
 Run the command "make TARGET=fir" to generate the following executable:
 1. fir
